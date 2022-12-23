@@ -2,7 +2,7 @@ package cmd_util
 
 import (
 	"encoding/json"
-	"github.com/modernizing/coca/pkg/application/analysis/javaapp"
+
 	"github.com/modernizing/coca/pkg/domain/core_domain"
 )
 
@@ -31,13 +31,15 @@ func readIdentify(importPath interface{}, fileName string, analysisApp func(impo
 }
 
 func analysisByPath(importPath interface{}) []core_domain.CodeDataStruct {
-	identifierApp := new(javaapp.JavaIdentifierApp)
-	ident := identifierApp.AnalysisPath(importPath.(string))
-	return ident
+	// identifierApp := new(javaapp.JavaIdentifierApp)
+	// ident := identifierApp.AnalysisPath(importPath.(string))
+	// return ident
+	return nil
 }
 
 func analysisByFiles(files interface{}) []core_domain.CodeDataStruct {
-	identifierApp := javaapp.NewJavaIdentifierApp()
-	ident := identifierApp.AnalysisFiles(files.([]string))
-	return ident
+	// identifierApp := javaapp.NewJavaIdentifierApp()
+	// ident := identifierApp.AnalysisFiles(files.([]string))
+	// return ident
+	return nil
 }

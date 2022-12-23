@@ -169,9 +169,22 @@ func (s *BadSmellListener) EnterFieldDeclaration(ctx *FieldDeclarationContext) {
 }
 
 func (s *BadSmellListener) EnterLocalVariableDeclaration(ctx *LocalVariableDeclarationContext) {
-	typ := ctx.GetChild(0).(antlr.ParseTree).GetText()
-	variableName := ctx.GetChild(1).GetChild(0).GetChild(0).(antlr.ParseTree).GetText()
-	localVars[variableName] = typ
+	// typ := ctx.GetChild(0).(antlr.ParseTree).GetText()
+	// variableName := ctx.GetChild(1).GetChild(0).GetChild(0).(antlr.ParseTree).GetText()
+	// localVars[variableName] = typ
+
+	typ := ""
+	if ctx.GetChild(0) != nil {
+		typ = ctx.GetChild(0).(antlr.ParseTree).GetText()
+	}
+	variableName := ""
+	if ctx.GetChild(1).GetChild(0).GetChild(0) != nil {
+		variableName = ctx.GetChild(1).GetChild(0).GetChild(0).(antlr.ParseTree).GetText()
+	}
+
+	if variableName != "" && typ != "" {
+		localVars[variableName] = typ
+	}
 }
 
 func (s *BadSmellListener) EnterMethodDeclaration(ctx *MethodDeclarationContext) {

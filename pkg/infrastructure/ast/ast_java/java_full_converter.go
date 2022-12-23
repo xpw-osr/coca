@@ -8,17 +8,25 @@ import (
 
 func BuildMethodParameters(parameters parser.IFormalParametersContext) []core_domain.CodeProperty {
 	var methodParams []core_domain.CodeProperty = nil
-	parameterList := parameters.GetChild(1).(*parser.FormalParameterListContext)
-	formalParameter := parameterList.AllFormalParameter()
-	for _, param := range formalParameter {
-		paramContext := param.(*parser.FormalParameterContext)
-		paramType := paramContext.TypeType().GetText()
-		paramValue := paramContext.VariableDeclaratorId().(*parser.VariableDeclaratorIdContext).Identifier().GetText()
 
-		localVars[paramValue] = paramType
-		parameter := core_domain.NewCodeParameter(paramType, paramValue)
-		methodParams = append(methodParams, parameter)
+	var parameterList *parser.FormalParameterListContext = nil
+	if parameters.GetChild(1) != nil {
+		parameterList = parameters.GetChild(1).(*parser.FormalParameterListContext)
 	}
+
+	if parameterList != nil {
+		formalParameter := parameterList.AllFormalParameter()
+		for _, param := range formalParameter {
+			paramContext := param.(*parser.FormalParameterContext)
+			paramType := paramContext.TypeType().GetText()
+			paramValue := paramContext.VariableDeclaratorId().(*parser.VariableDeclaratorIdContext).Identifier().GetText()
+
+			localVars[paramValue] = paramType
+			parameter := core_domain.NewCodeParameter(paramType, paramValue)
+			methodParams = append(methodParams, parameter)
+		}
+	}
+
 	return methodParams
 }
 

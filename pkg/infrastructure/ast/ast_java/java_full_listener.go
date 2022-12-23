@@ -1,13 +1,14 @@
 package ast_java
 
 import (
-	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
-	"github.com/modernizing/coca/languages/java"
-	"github.com/modernizing/coca/pkg/domain/core_domain"
-	"github.com/modernizing/coca/pkg/infrastructure/ast/ast_java/common_listener"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
+	parser "github.com/modernizing/coca/languages/java"
+	"github.com/modernizing/coca/pkg/domain/core_domain"
+	"github.com/modernizing/coca/pkg/infrastructure/ast/ast_java/common_listener"
 )
 
 var imports []string
@@ -50,9 +51,9 @@ func NewJavaFullListener(nodes map[string]core_domain.CodeDataStruct, file strin
 	currentNode = core_domain.NewDataStruct()
 	classStringQueue = nil
 	classNodeQueue = nil
-	methodQueue = nil
 
 	initClass()
+
 	return &JavaFullListener{}
 }
 
@@ -61,10 +62,16 @@ func initClass() {
 	currentClzExtend = ""
 	currentMethod = core_domain.NewJMethod()
 	currentNode.FunctionCalls = nil
+	creatorMethodMap = make(map[string]core_domain.CodeFunction)
 
+	methodQueue = nil
 	methodMap = make(map[string]core_domain.CodeFunction)
 	methodCalls = nil
+
 	fields = nil
+	mapFields = make(map[string]string)
+	localVars = make(map[string]string)
+	formalParameters = make(map[string]string)
 	isOverrideMethod = false
 }
 

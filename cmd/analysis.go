@@ -3,6 +3,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/modernizing/coca/cmd/cmd_util"
 	"github.com/modernizing/coca/pkg/application/analysis/javaapp"
 	"github.com/modernizing/coca/pkg/domain/core_domain"
@@ -23,24 +24,39 @@ var analysisCmd = &cobra.Command{
 	Short: "analysis code",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		var outputName string
-		var ds []core_domain.CodeDataStruct
+		// var outputName string
+		// var ds []core_domain.CodeDataStruct
 
-		ds = AnalysisJava()
-		outputName = "deps.json"
+		// ds = AnalysisJava()
+		// outputName = "deps.json"
 
-		cModel, _ := json.MarshalIndent(ds, "", "\t")
-		cmd_util.WriteToCocaFile(outputName, string(cModel))
+		// cModel, _ := json.MarshalIndent(ds, "", "\t")
+		// cmd_util.WriteToCocaFile(outputName, string(cModel))
+
+		callNodes := AnalysisJava()
+		callNodesJson, _ := json.MarshalIndent(callNodes, "", "\t")
+		cmd_util.WriteToCocaFile("deps.json", string(callNodesJson))
 	},
 }
 
-func AnalysisJava() []core_domain.CodeDataStruct {
+func AnalysisJava() []map[string]interface{} {
 	importPath := analysisCmdConfig.Path
 	var iNodes []core_domain.CodeDataStruct
 
 	if analysisCmdConfig.UpdateIdentify {
+		fmt.Println("# Updating identify ... ")
+
 		identifierApp := javaapp.NewJavaIdentifierApp()
-		iNodes := identifierApp.AnalysisPath(importPath)
+		jsonFiles := identifierApp.AnalysisPath(importPath)
+
+		for _, file := range jsonFiles {
+			if contents, succeed := javaapp.ReadJsonFile(file); succeed {
+				var subNodes []core_domain.CodeDataStruct
+				json.Unmarshal(contents, &subNodes)
+
+				iNodes = append(iNodes, subNodes...)
+			}
+		}
 
 		identModel, _ := json.MarshalIndent(iNodes, "", "\t")
 		cmd_util.WriteToCocaFile("identify.json", string(identModel))
@@ -50,9 +66,21 @@ func AnalysisJava() []core_domain.CodeDataStruct {
 		_ = json.Unmarshal(identContent, &iNodes)
 	}
 
-	callApp := javaapp.NewJavaFullApp()
+	fmt.Println("# Generating deps ... ")
 
-	callNodes := callApp.AnalysisPath(importPath, iNodes)
+	callApp := javaapp.NewJavaFullApp()
+	callJsonFiles := callApp.AnalysisPath(importPath, iNodes)
+
+	var callNodes []map[string]interface{}
+	for _, file := range callJsonFiles {
+		if contents, succeed := javaapp.ReadJsonFile(file); succeed {
+			var subNodes []map[string]interface{}
+			json.Unmarshal(contents, &subNodes)
+
+			callNodes = append(callNodes, subNodes...)
+		}
+	}
+
 	return callNodes
 }
 
