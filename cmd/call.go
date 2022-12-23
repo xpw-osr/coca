@@ -2,13 +2,15 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
+
 	"github.com/modernizing/coca/cmd/cmd_util"
 	"github.com/modernizing/coca/cmd/config"
+
 	. "github.com/modernizing/coca/pkg/application/call"
 	"github.com/modernizing/coca/pkg/domain/core_domain"
 	"github.com/spf13/cobra"
-	"log"
-	"strings"
 )
 
 type CallCmdConfig struct {
@@ -31,6 +33,8 @@ var callGraphCmd = &cobra.Command{
 		dependence := callCmdConfig.Path
 
 		if dependence != "" {
+			fmt.Printf("ClassName: %s, Path: %s, Remove Name: %s\n", callCmdConfig.ClassName, callCmdConfig.Path, callCmdConfig.RemoveName)
+
 			analyser := NewCallGraph()
 			file := cmd_util.ReadFile(dependence)
 			if file == nil {
@@ -39,13 +43,39 @@ var callGraphCmd = &cobra.Command{
 
 			_ = json.Unmarshal(file, &parsedDeps)
 
-			content := analyser.Analysis(callCmdConfig.ClassName, parsedDeps, callCmdConfig.Lookup)
-			if callCmdConfig.RemoveName != "" {
-				content = strings.ReplaceAll(content, callCmdConfig.RemoveName, "")
+			depCount := len(parsedDeps)
+			depIndex := 0
+			var contents string
+			for _, dep := range parsedDeps {
+				depIndex += 1
+				fmt.Printf("[%d / %d] Package: %s, Type: %s, NodeName: %s\n", depIndex, depCount, dep.Package, dep.Type, dep.NodeName)
+
+				funcCount := len(dep.Functions)
+				funcIndex := 0
+				for _, fun := range dep.Functions {
+					funcIndex += 1
+					className := fmt.Sprintf("%s.%s.%s", dep.Package, dep.NodeName, fun.Name)
+					fmt.Printf("  [%d / %d] %s ... ", funcIndex, funcCount, className)
+
+					content := analyser.Analysis(className, parsedDeps, callCmdConfig.Lookup)
+					contents = fmt.Sprintf("%s\n%s", contents, content)
+
+					fmt.Println("done")
+				}
 			}
 
-			cmd_util.WriteToCocaFile("call.dot", content)
-			cmd_util.ConvertToSvg("call")
+			dotFileName := fmt.Sprintf("%s.dot", callCmdConfig.ClassName)
+			cmd_util.WriteToCocaFile(dotFileName, contents)
+
+			// --------------------------------------------------
+
+			// content := analyser.Analysis(callCmdConfig.ClassName, parsedDeps, callCmdConfig.Lookup)
+			// if callCmdConfig.RemoveName != "" {
+			// 	content = strings.ReplaceAll(content, callCmdConfig.RemoveName, "")
+			// }
+
+			// cmd_util.WriteToCocaFile("call.dot", content)
+			// cmd_util.ConvertToSvg("call")
 		}
 	},
 }
