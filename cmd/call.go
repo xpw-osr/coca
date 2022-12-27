@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/modernizing/coca/cmd/cmd_util"
 	"github.com/modernizing/coca/cmd/config"
@@ -58,24 +59,21 @@ var callGraphCmd = &cobra.Command{
 					fmt.Printf("  [%d / %d] %s ... ", funcIndex, funcCount, className)
 
 					content := analyser.Analysis(className, parsedDeps, callCmdConfig.Lookup)
-					contents = fmt.Sprintf("%s\n%s", contents, content)
+					if strings.TrimSpace(content) != "" {
+						contents = fmt.Sprintf("%s\n%s", contents, content)
+					}
 
 					fmt.Println("done")
 				}
 			}
 
+			var dotContents = "digraph G {\n"
+			dotContents += "rankdir = LR;\n"
+			dotContents = dotContents + contents
+			dotContents = dotContents + "}\n"
+
 			dotFileName := fmt.Sprintf("%s.dot", callCmdConfig.ClassName)
-			cmd_util.WriteToCocaFile(dotFileName, contents)
-
-			// --------------------------------------------------
-
-			// content := analyser.Analysis(callCmdConfig.ClassName, parsedDeps, callCmdConfig.Lookup)
-			// if callCmdConfig.RemoveName != "" {
-			// 	content = strings.ReplaceAll(content, callCmdConfig.RemoveName, "")
-			// }
-
-			// cmd_util.WriteToCocaFile("call.dot", content)
-			// cmd_util.ConvertToSvg("call")
+			cmd_util.WriteToCocaFile(dotFileName, dotContents)
 		}
 	},
 }

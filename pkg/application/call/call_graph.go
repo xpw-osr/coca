@@ -1,11 +1,12 @@
 package call
 
 import (
+	"strings"
+
 	"github.com/modernizing/coca/pkg/application/rcall"
 	apidomain "github.com/modernizing/coca/pkg/domain/api_domain"
 	"github.com/modernizing/coca/pkg/domain/core_domain"
 	"github.com/modernizing/coca/pkg/infrastructure/jpackage"
-	"strings"
 )
 
 type CallGraph struct {
@@ -27,19 +28,19 @@ func (c CallGraph) Analysis(funcName string, clzs []core_domain.CodeDataStruct, 
 		chain = chain + rCallChain
 	}
 
-	dotContent := ToGraphviz(chain)
-	return dotContent
+	// dotContent := ToGraphviz(chain)
+	return chain
 }
 
 // TODO: be a utils
-func ToGraphviz(chain string) string {
-	// rankdir = LR;
-	var result = "digraph G {\n"
-	result += "rankdir = LR;\n"
-	result = result + chain
-	result = result + "}\n"
-	return result
-}
+// func ToGraphviz(chain string) string {
+// 	// rankdir = LR;
+// 	var result = "digraph G {\n"
+// 	result += "rankdir = LR;\n"
+// 	result = result + chain
+// 	result = result + "}\n"
+// 	return result
+// }
 
 var loopCount = 0
 var maxLoopCount = 6
