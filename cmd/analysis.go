@@ -24,15 +24,6 @@ var analysisCmd = &cobra.Command{
 	Short: "analysis code",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		// var outputName string
-		// var ds []core_domain.CodeDataStruct
-
-		// ds = AnalysisJava()
-		// outputName = "deps.json"
-
-		// cModel, _ := json.MarshalIndent(ds, "", "\t")
-		// cmd_util.WriteToCocaFile(outputName, string(cModel))
-
 		callNodes := AnalysisJava()
 		callNodesJson, _ := json.MarshalIndent(callNodes, "", "\t")
 		cmd_util.WriteToCocaFile("deps.json", string(callNodesJson))

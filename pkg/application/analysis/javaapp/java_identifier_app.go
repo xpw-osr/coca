@@ -33,6 +33,7 @@ func (j *JavaIdentifierApp) AnalysisFiles(files []string) []string {
 	fileCount := len(files)
 	fileIndex := 0
 	for _, file := range files {
+		fileIndex += 1
 		fmt.Printf("- [%d / %d] %s ... ", fileIndex, fileCount, file)
 
 		identifiers := j.AnalysisFile(file)
